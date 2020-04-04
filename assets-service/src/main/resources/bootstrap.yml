@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: assetsservice
+  profiles:
+    active:
+      default

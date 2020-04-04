@@ -1,0 +1,77 @@
+version: '2'
+services:
+  eurekaserver:
+     image:   vy-ms/tmx-eurekasvr:assignment31
+     ports:
+         - "8761:8761"
+  configserver:
+      image: vy-ms/tmx-confsvr:assignment31
+      ports:
+         - "8888:8888"
+      environment:
+         EUREKASERVER_PORT: 8761
+         EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+         ENCRYPT_KEY:       "IMSYMMETRIC"
+  zuulserver:
+      image: vy-ms/tmx-zuulsvr:assignment31
+      ports:
+        - "5555:5555"
+      environment:
+        PROFILE: "default"
+        SERVER_PORT: "5555"
+        CONFIGSERVER_PORT: 8888
+        EUREKASERVER_PORT: 8761
+        CONFIGSERVER_URI: "http://configserver:8888"
+        EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+  database:
+      image: postgres:9.5
+      ports:
+        - "5432:5432"
+      environment:
+        - POSTGRES_USER=postgres
+        - POSTGRES_PASSWORD=p0stgr@s
+        - POSTGRES_DB=eagle_eye_local
+  assetsservice:
+      image: vy-ms/tmx-assets-service:assignment31
+      ports:
+        - "8080:8080"
+      environment:
+        PROFILE: "default"
+        SERVER_PORT: "8080"
+        ES_PORT:           9200
+        DATABASE_PORT:     5432
+        CONFIGSERVER_PORT: 8888
+        EUREKASERVER_PORT: 8761
+        AUTHSERVER_PORT:   8091
+        CONFIGSERVER_URI: "http://configserver:8888"
+        EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+        AUTHSERVER_URI:   "http://authenticationservice:8901/auth/user"
+        ENCRYPT_KEY:       "IMSYMMETRIC"
+  organizationservice:
+      image: vy-ms/tmx-organization-service:assignment31
+      ports:
+        - "8085:8085"
+      environment:
+        PROFILE: "default"
+        SERVER_PORT: "8085"
+        DATABASE_PORT:     5432
+        CONFIGSERVER_PORT: 8888
+        EUREKASERVER_PORT: 8761
+        AUTHSERVER_PORT:   8091
+        CONFIGSERVER_URI: "http://configserver:8888"
+        EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+        AUTHSERVER_URI:   "http://authenticationservice:8901/auth/user"
+        ENCRYPT_KEY:       "IMSYMMETRIC"
+  authenticationservice:
+      image: vy-ms/tmx-authentication-service:assignment31
+      ports:
+        - "8901:8901"
+      environment:
+        PROFILE: "default"
+        SERVER_PORT: "8901"
+        DATABASE_PORT:     5432
+        CONFIGSERVER_PORT: 8888
+        EUREKASERVER_PORT: 8761
+        CONFIGSERVER_URI: "http://configserver:8888"
+        EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+        ENCRYPT_KEY:       "IMSYMMETRIC"
